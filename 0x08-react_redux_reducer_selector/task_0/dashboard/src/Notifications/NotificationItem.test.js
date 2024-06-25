@@ -1,30 +1,60 @@
-/**
- * @jest-environment jsdom
- */
-
 import React from "react";
-import { shallow } from "enzyme";
-import NotificationItem from "./NotificationItem";
-import { StyleSheetTestUtils } from 'aphrodite';
+import PropTypes from "prop-types";
+import { StyleSheet, css } from "aphrodite";
 
-StyleSheetTestUtils.suppressStyleInjection();
+class NotificationItem extends React.PureComponent {
+  render() {
+    const { type, value, html, markAsRead, id } = this.props;
+    return (
+      <>
+        {type && value ? (
+          <li className={type === "default" ? css(styles.default) : css(styles.urgent)} onClick={() => markAsRead(id)} data-notification-type={type}>
+            {value}
+          </li>
+        ) : null}
+        {html ? <li onClick={() => markAsRead(id)} data-urgent className={css(styles.urgent)} dangerouslySetInnerHTML={{ __html: html }}></li> : null}
+      </>
+    );
+  }
+}
 
-describe("<Notifications />", () => {
-  it("NotificationItem renders without crashing", () => {
-    const wrapper = shallow(<NotificationItem />);
-    expect(wrapper.exists()).toEqual(true);
-  });
-
-  it("Verify that by passing dummy type and value props, it renders the correct html", () => {
-    const wrapper = shallow(<NotificationItem type="default" value="test" />);
-    expect(wrapper.find("li")).toHaveLength(1);
-    expect(wrapper.find("li").text()).toEqual("test");
-    expect(wrapper.find("li").prop("data-notification-type")).toEqual("default");
-  });
-
-  it("Passing a html prop, it renders the correct html (for example", () => {
-    const text = "Here is the list of notifications";
-    const wrapper = shallow(<NotificationItem html={{ __html: "<u>test</u>" }} />);
-    expect(wrapper.find("li").html()).toContain('data-notification-type="default"');
-  });
+const styles = StyleSheet.create({
+  default: {
+    color: "blue",
+    "@media (max-width: 375px)": {
+      borderBottom: "1px solid black",
+      listStyle: "none",
+      fontSize: "20px",
+      padding: "10px 8px",
+    },
+  },
+  urgent: {
+    color: "red",
+    "@media (max-width: 375px)": {
+      borderBottom: "1px solid black",
+      listStyle: "none",
+      fontSize: "20px",
+      padding: "10px 8px",
+    },
+  },
 });
+
+NotificationItem.propTypes = {
+  type: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  __html: PropTypes.shape({
+    html: PropTypes.string,
+  }),
+  markAsRead: PropTypes.func,
+  id: PropTypes.number,
+};
+
+NotificationItem.defaultProps = {
+  type: "default",
+  markAsRead: () => {
+    console.log("empty func");
+  },
+  id: 0,
+};
+
+export default NotificationItem;
