@@ -1,1 +1,1 @@
-0x07-react_redux_action_creator_normalizr
+0x09. React Redux Connectors and Providers
